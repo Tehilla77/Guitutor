@@ -1,9 +1,6 @@
 import os
-import numpy as np
 import pandas as pd
-from scipy.io import wavfile
-from scipy.fft import fft, fftfreq
-from scipy.signal import spectrogram, find_peaks, fftconvolve
+
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix, accuracy_score
@@ -14,32 +11,13 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from pydub import AudioSegment
-import IPython
-import seaborn as sns
 
 
-def find_harmonics(path, print_peaks=False):
-    fs, X = wavfile.read(path)
-    # Check if the audio file is stereo (2 channels)
-    if X.ndim > 1:
-        # X is stereo, average the channels to make it mono
-        X = X.mean(axis=1)
-    N = len(X)
-    X_F = fft(X)
-    X_F_onesided = 2.0 / N * np.abs(X_F[0:N // 2])
-    freqs = fftfreq(N, 1 / fs)[:N // 2]
-    freqs_50_index = np.abs(freqs - 50).argmin()
-    h = X_F_onesided.max() * 5 / 100
-    peaks, _ = find_peaks(X_F_onesided, distance=10, height=h)
-    peaks = peaks[peaks > freqs_50_index]
-    harmonics = np.round(freqs[peaks], 2)
-    return harmonics
+from recognize_chord_name import find_harmonics
 
 
-def build_model():
+def build_model(path):
     # build model
-    path = r"F:\bina_project_server_side\Audio_Files"
     data = []
     # 278, 55.0
     max_harm_length = 0  # i will keep track of max harmonic length for naming columns
@@ -113,4 +91,4 @@ def build_model():
 
 
 if __name__ == "__main__":
-    build_model()
+    build_model(r"C:\Users\User\Desktop\פרויקט בינה מלאכותית 20.5.24\Audio_Files")

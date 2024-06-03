@@ -9,6 +9,7 @@ const AudioRecorder: React.FC = () => {
   const chunks = useRef<Blob[]>([]);
   const [started, setStarted] = useState<boolean>(false)
   const [stopped, setStopped] = useState<boolean>(false)
+  const [sendToServer, setSendToServer] = useState<boolean>(false)
   const location = useLocation();
   const songToLoad = location.state
 
@@ -40,11 +41,9 @@ const AudioRecorder: React.FC = () => {
         const url: string = URL.createObjectURL(recordedBlob);
         setRecordedUrl(url);
         chunks.current = [];
-
         // Send the Blob to the server
-        await sendBlobToServer(recordedBlob);
+    // await sendBlobToServer(recordedBlob);
       };
-
       mediaRecorder.current.start();
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -81,13 +80,21 @@ const AudioRecorder: React.FC = () => {
       console.error('Error sending blob to server:', error);
     }
   };
-
+  
+  const sendSong = async()=>{
+    const recordedBlob: Blob = new Blob(chunks.current, { type: 'audio/webm' });
+    const url: string = URL.createObjectURL(recordedBlob);
+    setRecordedUrl(url);
+    chunks.current = [];
+    // Send the Blob to the server
+    await sendBlobToServer(recordedBlob);
+  }
   return (
     <div className="audio-recorder">
       <audio controls>
         <source src={songToLoad} type="audio/wav"></source>
       </audio>
-      {recordedUrl != '' ? <audio controls src={recordedUrl} /> : ""}
+      {recordedUrl != '' ? <div><h4>your record of Guitar</h4><audio controls src={recordedUrl} /></div> : ""}
       
       {
         !started ? <button className="start" onClick={() => { setStarted(true); startRecording() }}>Start Recording</button>
@@ -96,8 +103,12 @@ const AudioRecorder: React.FC = () => {
       {
         stopped ? <button onClick={() => { setRecordedUrl(''); setStarted(false); setStopped(false) }}>Restart Recording</button> : ""
       }
+       {
+        stopped ? <button onClick={() => { setSendToServer(true);sendSong();setStopped(true); stopRecording() }}>Send Recording</button> : ""
+      }
     </div>
   );
 };
 
 export default AudioRecorder;
+

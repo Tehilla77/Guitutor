@@ -1,9 +1,9 @@
 import joblib
 import pandas as pd
-from build_chord_classifcation_model_rfc import find_harmonics
-from pydub import AudioSegment
+from more_functions import find_harmonics
 import os
 
+from more_functions import convert_to_wav
 model = joblib.load('rfc_model.pkl')
 
 
@@ -50,22 +50,15 @@ def save_song_data(filename):
     return df[columns]
 
 
-def convert_to_wav(mp3_file, output_dir):
-    audio = AudioSegment.from_mp3(mp3_file)
-    wav_file = os.path.join(output_dir, os.path.splitext(os.path.basename(mp3_file))[0] + ".wav")
-    audio.export(wav_file, format="wav")
-    return wav_file
-
-
 def get_prediction(audio_file):
     # Convert MP3 to WAV
-    file_name, file_extension = os.path.splitext(audio_file)
+    # file_name, file_extension = os.path.splitext(audio_file)
 
     # Convert to WAV if the file is MP3
-    if file_extension.lower() == ".mp3":
-        wav_file = convert_to_wav(audio_file, output_dir=".")
-    else:
-        wav_file = audio_file
+    # if file_extension.lower() == ".mp3":
+    wav_file = convert_to_wav(audio_file, output_dir=".")
+    # else:
+    #     wav_file = audio_file
 
     # Process WAV file
     file_data = save_song_data(wav_file)
@@ -74,7 +67,3 @@ def get_prediction(audio_file):
     if prediction == 0:
         return "Minor"
     return "Major"
-
-
-# Test the function with debugging
-get_prediction(r"C:\Users\User\Desktop\פרויקט בינה מלאכותית 20.5.24\Audio_Files\Major\Major_2.wav")

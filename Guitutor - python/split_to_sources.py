@@ -90,8 +90,41 @@ def plot_spectrogram(stft, title="Spectrogram"):
 
 # We download the audio file from our storage. Feel free to download another file and use audio from a specific path
 def load_song(song_router):
-    SAMPLE_SONG = download_asset(song_router)
+    # SAMPLE_SONG = download_asset(song_router)
+    # waveform, sample_rate = torchaudio.load(SAMPLE_SONG)  # replace SAMPLE_SONG with desired path for different song
+    #
+    # waveform = waveform.to(device)
+    # mixture = waveform
+    #
+    # # parameters
+    # segment: int = 10
+    # overlap = 0.1
+    #
+    # print("Separating track")
+    # ref = waveform.mean(0)
+    # waveform = (waveform - ref.mean()) / ref.std()  # normalization
+    # global sources
+    # sources = separate_sources(
+    #     model,
+    #     waveform[None],
+    #     device=device,
+    #     segment=segment,
+    #     overlap=overlap,
+    # )[0]
+    #
+    # sources = sources * ref.std() + ref.mean()
+    # sources_list = model.sources
+    #
+    # sources = list(sources)
+    # print(sources_list)
+    # audios = dict(zip(sources_list, sources))
+    # return sources
+    SAMPLE_SONG = song_router
     waveform, sample_rate = torchaudio.load(SAMPLE_SONG)  # replace SAMPLE_SONG with desired path for different song
+
+    # Ensure the waveform is in stereo
+    if waveform.size(0) == 1:  # If the audio is mono (single channel)
+        waveform = waveform.repeat(2, 1)  # Convert mono to stereo by repeating the channel
 
     waveform = waveform.to(device)
     mixture = waveform
@@ -121,36 +154,36 @@ def load_song(song_router):
     return sources
 
 
-# def build_vocal(file):
-#     # Define the directory path
-#     directory = rf"{os.getcwd()}\songs\{file}"
-#     # Write the vocal file
-#     wavio.write(rf"{directory}\{file}_vocal.wav", sources[3][0] + sources[3][1], sample_rate, sampwidth=2)
-#     # Convert to mp3
-#     sound = AudioSegment.from_wav(rf"{directory}\{file}_vocal.wav")
-#     sound.export(rf"{directory}\{file}_vocal.mp3", format='mp3')
-#     # Remove the temporary wav file
-#     os.remove(rf"{directory}\{file}_vocal.wav")
+def build_vocal(file):
+    # Define the directory path
+    directory = rf"{os.getcwd()}\songs\{file}"
+    # Write the vocal file
+    wavio.write(rf"{directory}\{file}_vocal.wav", sources[3][0] + sources[3][1], sample_rate, sampwidth=2)
+    # Convert to mp3
+    sound = AudioSegment.from_wav(rf"{directory}\{file}_vocal.wav")
+    sound.export(rf"{directory}\{file}_vocal.mp3", format='mp3')
+    # Remove the temporary wav file
+    os.remove(rf"{directory}\{file}_vocal.wav")
 
 
-# def build_drums(file):
-#     # Define the directory path
-#     directory = rf"{os.getcwd()}\songs\{file}"
-#     # Write the vocal file
-#     wavio.write(rf"{directory}\{file}_drums.wav", sources[0][0] + sources[0][1], sample_rate, sampwidth=2)
-#     # Convert to mp3
-#     sound = AudioSegment.from_wav(rf"{directory}\{file}_drums.wav")
-#     sound.export(rf"{directory}\{file}_drums.mp3", format='mp3')
-#     # Remove the temporary wav file
-#     os.remove(rf"{directory}\{file}_drums.wav")
+def build_drums(file):
+    # Define the directory path
+    directory = rf"{os.getcwd()}\songs\{file}"
+    # Write the vocal file
+    wavio.write(rf"{directory}\{file}_drums.wav", sources[0][0] + sources[0][1], sample_rate, sampwidth=2)
+    # Convert to mp3
+    sound = AudioSegment.from_wav(rf"{directory}\{file}_drums.wav")
+    sound.export(rf"{directory}\{file}_drums.mp3", format='mp3')
+    # Remove the temporary wav file
+    os.remove(rf"{directory}\{file}_drums.wav")
 
 
-# def build_bass(file):
-#     directory = rf"{os.getcwd()}\songs\{file}"
-#     wavio.write(rf"{directory}\{file}_bass.wav", sources[1][0] + sources[1][1], sample_rate, sampwidth=2)
-#     sound = AudioSegment.from_wav(rf"{directory}\{file}_bass.wav")
-#     sound.export(rf"{directory}\{file}_bass.mp3", format='mp3')
-#     os.remove(rf"{directory}\{file}_bass.wav")
+def build_bass(file):
+    directory = rf"{os.getcwd()}\songs\{file}"
+    wavio.write(rf"{directory}\{file}_bass.wav", sources[1][0] + sources[1][1], sample_rate, sampwidth=2)
+    sound = AudioSegment.from_wav(rf"{directory}\{file}_bass.wav")
+    sound.export(rf"{directory}\{file}_bass.mp3", format='mp3')
+    os.remove(rf"{directory}\{file}_bass.wav")
 
 
 def build_other(file):
@@ -192,6 +225,12 @@ def build_song_without_guitar(file):
     sound.export(rf"{directory}\{file}_song_without_guitar.mp3", format='mp3')
     os.remove(rf"{directory}\{file}_song_without_guitar.wav")
 
+# The default set of pretrained weights that has been loaded has 4 sources that it is separated into: drums, bass, other, and vocals in that order. They have been stored into the dict “audios” and therefore can be accessed there. For the four sources, there is a separate cell for each, that will create the audio, the spectrogram graph, and also calculate the SDR score. SDR is the signal-to-distortion ratio, essentially a representation to the “quality” of an audio track.
 
-
-
+# N_FFT = 4096
+# N_HOP = 4
+# stft = torchaudio.transforms.Spectrogram(
+#     n_fft=N_FFT,
+#     hop_length=N_HOP,
+#     power=None,
+# )
